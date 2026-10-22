@@ -74,6 +74,8 @@ def key(token):
 
 def approval_command(ticket):
     args = [sys.executable, "-m", "whoop_mcp.cli", "remote", "approve", ticket]
+    if getattr(sys, "frozen", False):
+        args = [sys.executable, "remote", "approve", ticket]
     if sys.platform == "win32":
         return "& " + " ".join("'" + a.replace("'", "''") + "'" for a in args)
     return shlex.join(args)

@@ -1,3 +1,7 @@
+import multiprocessing
+
 from whoop_mcp.cli import main
 
-main()
+if __name__ == "__main__":
+    multiprocessing.freeze_support()
+    main()

@@ -4,6 +4,7 @@ WHOOP MCP is an independent, self-hosted tool by Das Kreb. It has no vendor-oper
 data collection endpoint, advertising, analytics or telemetry. Its public GitHub Pages
 site is documentation only and does not accept account credentials or health records.
 GitHub may process normal website traffic according to its own privacy policy.
+The website uses Google Fonts; Google receives font requests from visitors' browsers.
 
 After your consent, the server reads WHOOP profile, body measurements, cycles, recovery,
 sleep and workouts. It returns requested information to your chosen MCP client; that
