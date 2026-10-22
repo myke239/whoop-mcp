@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Verify login through the profile endpoint so missing optional body measurements do
+  not fail an otherwise valid connection. Live checks disclose unavailable data.
+- Suppress routine HTTP request logs that can contain private record identifiers.
+
 - Accept WHOOP's optional OAuth callback scope parameter while preserving state,
   expiry, callback-target and duplicate-parameter validation.
 - Use an ASCII setup banner so Windows PowerShell displays it correctly.

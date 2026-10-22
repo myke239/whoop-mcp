@@ -24,6 +24,13 @@ async def verify(timezone):
             result = await session.call_tool(name, arguments)
             data = json.loads(result.content[0].text)
             if result.isError or "error" in data:
+                if (
+                    name == "get_whoop_body_measurements"
+                    and not result.isError
+                    and data.get("error") == "NOT_FOUND"
+                ):
+                    print(name + ": UNAVAILABLE (WHOOP returned NOT_FOUND)", flush=True)
+                    return data
                 raise RuntimeError(name + ": " + data.get("error", "MCP_ERROR"))
             print(name + ": PASS", flush=True)
             return data
@@ -65,7 +72,19 @@ async def verify(timezone):
                 "timezone": timezone,
             },
         )
-    print("Authenticated MCP acceptance passed. No account records written to disk.")
+        await call(
+            "compare_whoop_periods",
+            {
+                "kind": "recovery",
+                "first_start": start,
+                "first_end": (now - timedelta(days=7)).isoformat(),
+                "second_start": (now - timedelta(days=7)).isoformat(),
+                "second_end": end,
+            },
+        )
+    print(
+        "Authenticated MCP checks completed; unavailable data is reported above. No account records written to disk."
+    )
 
 
 if __name__ == "__main__":

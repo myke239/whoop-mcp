@@ -44,7 +44,9 @@ encrypted configuration is stored locally. Never send those values to an assista
 five minutes. Requested scopes: `read:cycles`, `read:recovery`, `read:sleep`, `read:workout`,
 `read:profile`, `read:body_measurement` and `offline` for refresh.
 WHOOP approval/developer-account restrictions may apply to your application.
-`verify` performs an authenticated body-measurement read without printing health data.
+`verify` performs an authenticated profile read without printing profile fields. Body
+measurements may be unavailable even when login works; a 404 from that tool is reported
+as unavailable data rather than an authentication failure.
 
 Windows uses Credential Manager; macOS uses Keychain. Linux requires an unlocked Secret
 Service keyring (such as GNOME Keyring). Headless Linux needs a working secret-service

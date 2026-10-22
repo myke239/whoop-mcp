@@ -116,8 +116,8 @@ def main():
         elif args.command == "verify":
             from .client import WhoopClient
 
-            WhoopClient().singleton("body")
-            print("WHOOP authenticated read passed. No measurements were printed.")
+            WhoopClient().singleton("profile")
+            print("WHOOP authenticated read passed. No profile fields were printed.")
         elif args.command == "logout":
             interactive()
             Auth().logout()

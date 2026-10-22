@@ -8,7 +8,7 @@ Evidence is recorded as checks run, not inferred from implemented features.
 - HTTP OAuth exercised through the actual SDK routes: discovery, registration, local-consent
   simulation, wrong PKCE rejection, successful code exchange, code replay rejection,
   authenticated MCP initialization, resource mismatch rejection, refresh rotation and revocation.
-- Synthetic data only. No WHOOP account connected during these checks.
+- Initial offline checks used synthetic data only; subsequent live evidence is below.
 - Windows clean managed installer passed: wheel installed into an isolated prefix,
   installed launcher version checked, real stdio initialize/list/call passed, bundled
   plugin copied and absolute executable configuration checked.
@@ -40,10 +40,21 @@ Evidence is recorded as checks run, not inferred from implemented features.
   build and Windows CI passed, but that does not establish downloaded-binary acceptance
   under Avast. Use the tested managed Python installer while this remains unresolved.
 
-## Required before live acceptance
+## Authenticated empty-account acceptance - 2026-10-22
 
-- Owner creates/configures WHOOP OAuth app locally and completes browser consent.
-- Run verify and exercise representative cycle/recovery/sleep/workout reads with owner's consent.
+- Owner completed browser authorization after the callback-scope fix in PR #4.
+- `verify` passed using an authenticated profile read without printing identity fields.
+- Actual stdio MCP checks passed for guide, profile, all four collections, all four
+  period summaries, a local-date view and period comparison.
+- The test account has no recorded history. Both bounded and unfiltered latest reads
+  returned empty collections. WHOOP returned NOT_FOUND for body measurements; this is
+  disclosed as unavailable rather than treated as a failed login.
+- Populated details, pagination and unit values remain covered by synthetic tests only;
+  an empty-account check does not verify those paths against populated live data.
+- Routine HTTP request-path logging is disabled to avoid printing record identifiers.
+
+## Remaining acceptance
+
 - Verify privacy projection, units, score states and pagination against real responses.
 - Connect the public HTTPS MCP endpoint to the owner's ChatGPT account, then check phone access.
 - All current native archives are unsigned; no publisher verification or notarization is claimed.
