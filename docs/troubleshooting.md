@@ -18,6 +18,7 @@ or health records. `verify` checks a real authenticated read without printing me
 | ChatGPT returns 401 | Reconnect OAuth; confirm the resource matches the public origin + /mcp |
 | Origin changed | Stop server, run remote reset, then reconnect at the new origin |
 | No plugin tools in Codex | Check the absolute launcher, plugin enabled state, and start a new chat |
+| Downloaded Windows executable returns Access is denied | The owner's Avast sandbox terminated the unsigned prerelease executable. Use the tested managed Python installer; do not disable antivirus or TLS protections. Native download acceptance remains unresolved. |
 
 Package installation requires Python 3.12+. An installed interpreter can be selected
 explicitly: `path/to/python scripts/install.py`. On Windows `py -3.13` can select Python 3.13.
