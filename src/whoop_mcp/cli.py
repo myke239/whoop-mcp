@@ -81,8 +81,9 @@ def main():
     try:
         if args.command == "serve":
             from .server import create_server
+            from .stdio import run
 
-            create_server().run(transport="stdio")
+            run(create_server())
         elif args.command == "remote":
             from .remote import run
 

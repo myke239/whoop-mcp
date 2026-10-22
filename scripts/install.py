@@ -31,11 +31,21 @@ def main():
     parser.add_argument("--uninstall", action="store_true")
     args = parser.parse_args()
     root = (args.prefix or default_root()).absolute()
-    if root.is_symlink() or root == Path(root.anchor) or len(root.parts) < 3:
+    if (
+        any(p.is_symlink() or p.is_junction() for p in (root, *root.parents))
+        or root != root.resolve()
+        or root == Path(root.anchor)
+        or len(root.parts) < 3
+    ):
         raise SystemExit("Refusing unsafe installation prefix")
     receipt = root / "installation.json"
     if args.uninstall:
-        if not receipt.is_file() or json.loads(receipt.read_text())["product"] != "whoop-mcp":
+        if (
+            not receipt.is_file()
+            or receipt.is_symlink()
+            or json.loads(receipt.read_text()).get("product") != "whoop-mcp"
+            or Path(json.loads(receipt.read_text()).get("root", "")).resolve() != root
+        ):
             raise SystemExit("No WHOOP installation receipt at this prefix")
         if (
             input(f"Remove application at {root}? Credentials are preserved. Type REMOVE: ")
