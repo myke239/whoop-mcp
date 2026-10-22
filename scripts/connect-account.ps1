@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $python = Join-Path $projectRoot '.venv/Scripts/python.exe'
 if (-not (Test-Path -LiteralPath $python)) { throw 'Create the project virtual environment first; see docs/installation.md.' }
-Write-Host 'WHOOP MCP by Das Kreb — local account setup'
+Write-Host 'WHOOP MCP by Das Kreb - local account setup'
 Write-Host 'Register http://127.0.0.1:8937/callback in your WHOOP developer application.'
 Write-Host 'The client secret is hidden and saved only in encrypted local storage.'
 Start-Process 'https://developer.whoop.com/' -WindowStyle Hidden
