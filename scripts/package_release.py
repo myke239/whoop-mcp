@@ -3,6 +3,8 @@
 import hashlib
 import platform
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
@@ -14,3 +16,5 @@ digest = hashlib.sha256(archive.read_bytes()).hexdigest()
 (out / (name + ".sha256")).write_text(f"{digest}  {archive.name}\n", encoding="utf-8")
 for wheel in (root / "dist").glob("*.whl"):
     shutil.copy2(wheel, out / wheel.name)
+inventory = subprocess.check_output([sys.executable, "-m", "pip", "freeze"], text=True)
+(out / (name + "-dependencies.txt")).write_text(inventory, encoding="utf-8")

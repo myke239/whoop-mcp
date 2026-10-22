@@ -24,6 +24,16 @@ listing. Your machine and HTTPS forwarding service must remain running.
    Check the same connection on your phone. Mobile availability requires verification
    on your account; server compatibility alone does not establish phone support.
 
+## Guided ngrok alternative
+
+The remote extra includes the ngrok SDK. If you use ngrok, run `whoop-mcp tunnel setup`
+locally and enter its authtoken at the hidden prompt. Then run `whoop-mcp tunnel run`.
+It reserves the loopback socket before opening the tunnel and prints the public MCP URL.
+Use that URL in ChatGPT and follow the same OAuth consent steps above. Ctrl+C closes
+the foreground tunnel. No background service or startup task is installed.
+`tunnel status` displays the recorded URL and PID; after an abrupt process kill this
+record can be stale. If ngrok assigns a new origin, reset remote grants and reconnect.
+
 Only `chatgpt.com/connector_platform_oauth_redirect` and single-segment
 `chatgpt.com/connector/oauth/<callback_id>` HTTPS callbacks are accepted. The service
 supports DCR, S256 PKCE, protected-resource discovery, resource-bound tokens, one-hour

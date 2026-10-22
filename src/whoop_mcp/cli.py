@@ -74,6 +74,9 @@ def main():
     remote.add_argument("ticket", nargs="?")
     remote.add_argument("--public-url")
     remote.add_argument("--port", type=int, default=8788)
+    tunnel = sub.add_parser("tunnel")
+    tunnel.add_argument("action", choices=["setup", "run", "status"])
+    tunnel.add_argument("--port", type=int, default=8788)
     args = parser.parse_args()
     try:
         if args.command == "serve":
@@ -82,6 +85,10 @@ def main():
             create_server().run(transport="stdio")
         elif args.command == "remote":
             from .remote import run
+
+            run(args)
+        elif args.command == "tunnel":
+            from .tunnel import run
 
             run(args)
         elif args.command == "install-plugin":
