@@ -1,0 +1,45 @@
+name: Native release
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  bundle:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install '.[dev,remote,package]'
+      - run: python -m pytest -q
+      - run: python -m build
+      - run: python scripts/build_bundle.py
+      - run: python scripts/verify_bundle.py
+      - run: python scripts/package_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whoop-${{ matrix.os }}
+          path: dist/release/*
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: bundle
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release-assets/* --title "WHOOP MCP $GITHUB_REF_NAME · Das Kreb" --notes-file docs/release-notes.md

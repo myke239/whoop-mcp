@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "whoop-mcp-das-kreb"
+version = "0.1.0"
+description = "Private WHOOP recovery, sleep and training conversations. By Das Kreb."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{name = "Das Kreb"}]
+dependencies = ["mcp==1.30.0", "httpx>=0.28.1,<0.29", "platformdirs>=4.3,<5", "filelock>=3.20,<4", "keyring>=25.7,<26", "cryptography>=46,<51", "tzdata>=2025.2", "truststore==0.10.4"]
+
+[project.optional-dependencies]
+dev = ["pytest>=9,<10", "pytest-asyncio>=1,<2", "ruff>=0.14,<1", "build>=1.3,<2", "pip-audit>=2.9,<3"]
+remote = ["uvicorn>=0.38,<1", "ngrok>=1.7,<2"]
+package = ["pyinstaller>=6.16,<7"]
+
+[project.scripts]
+whoop-mcp = "whoop_mcp.cli:main"
+
+[project.urls]
+Homepage = "https://myke239.github.io/whoop-mcp/"
+Repository = "https://github.com/myke239/whoop-mcp"
+Issues = "https://github.com/myke239/whoop-mcp/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/whoop_mcp"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"plugins/whoop" = "whoop_mcp/bundled_plugin"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--basetemp=work/pytest-tmp"
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP"]

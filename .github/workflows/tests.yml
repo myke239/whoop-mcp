@@ -1,0 +1,42 @@
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python: ['3.12', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[dev,remote]'
+      - run: python -m ruff check src tests scripts
+      - run: python -m ruff format --check src tests scripts
+      - run: python -m pytest -q
+      - run: python -m pip check
+      - run: python -m build
+      - run: python scripts/verify_install.py
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.13'
+        with:
+          name: python-distribution
+          path: dist/*
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install '.[dev,remote]'
+      - run: python -m pip_audit --progress-spinner off
