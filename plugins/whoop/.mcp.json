@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "whoop": {
+      "command": "whoop-mcp",
+      "args": ["serve"],
+      "startup_timeout_sec": 30,
+      "tool_timeout_sec": 240
+    }
+  }
+}

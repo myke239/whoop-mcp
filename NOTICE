@@ -1,0 +1,12 @@
+WHOOP MCP by Das Kreb
+Copyright (c) 2026 Das Kreb
+
+Independent community project. WHOOP and OpenAI trademarks belong to their owners.
+No affiliation, endorsement, marketplace approval or verified publisher status is implied.
+
+The Das Kreb logo is reused from the owner's Garmin Connect MCP project at their request.
+Architecture draws on the same owner's MIT-licensed Garmin Connect MCP project:
+https://github.com/myke239/garmin-connect-mcp
+
+Dependencies retain their own licenses. Release dependency inventories are generated
+from the build environment. WHOOP member data is accessed through the official OAuth API.

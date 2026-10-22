@@ -12,3 +12,4 @@ __pycache__/
 session.json
 *.key
 *.pem
+*.spec

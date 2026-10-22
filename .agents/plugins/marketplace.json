@@ -1,0 +1,10 @@
+{
+  "name": "das-kreb-whoop",
+  "interface": {"displayName": "Das Kreb · WHOOP"},
+  "plugins": [{
+    "name": "whoop",
+    "source": {"source": "local", "path": "./plugins/whoop"},
+    "policy": {"installation": "AVAILABLE", "authentication": "ON_USE"},
+    "category": "Productivity"
+  }]
+}

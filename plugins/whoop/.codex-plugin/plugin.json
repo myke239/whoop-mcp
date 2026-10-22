@@ -1,0 +1,19 @@
+{
+  "name": "whoop",
+  "version": "0.1.0",
+  "description": "WHOOP sleep, recovery and training evidence through the official API. By Das Kreb.",
+  "author": {"name": "Das Kreb"},
+  "repository": "https://github.com/myke239/whoop-mcp",
+  "license": "MIT",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "WHOOP",
+    "shortDescription": "Understand sleep, recovery and strain",
+    "longDescription": "Explore WHOOP cycles, recovery, sleep, naps and recorded workouts. Compare periods with explicit units, missingness and score states. Uses the official WHOOP API with private local OAuth storage.",
+    "developerName": "Das Kreb",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "defaultPrompt": ["Summarize my recovery over the last two weeks", "Compare my recent sleep and training"]
+  }
+}
