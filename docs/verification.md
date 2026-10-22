@@ -31,6 +31,14 @@ Evidence is recorded as checks run, not inferred from implemented features.
   initialize/list/call, graceful EOF, bundled plugin copy, archives and SHA-256 manifests.
 - Native Windows doctor also exercised the actual Windows OS keyring using an empty
   synthetic private directory. macOS/Linux live keyring sessions remain owner-environment checks.
+- Downloaded all three published archives and independently verified their SHA-256
+  manifests, safe archive paths and Unix executable permission bits.
+- The downloaded Windows executable did not pass startup on the owner's machine:
+  CreateProcess returned WinError 5 (Access is denied). Avast autosandbox.log recorded
+  that exact executable as a sandbox candidate with a Terminate result at 13:55:54
+  America/Los_Angeles on 2026-10-22. No protection was disabled or bypassed. The local
+  build and Windows CI passed, but that does not establish downloaded-binary acceptance
+  under Avast. Use the tested managed Python installer while this remains unresolved.
 
 ## Required before live acceptance
 
@@ -39,6 +47,8 @@ Evidence is recorded as checks run, not inferred from implemented features.
 - Verify privacy projection, units, score states and pagination against real responses.
 - Connect the public HTTPS MCP endpoint to the owner's ChatGPT account, then check phone access.
 - All current native archives are unsigned; no publisher verification or notarization is claimed.
+- Resolve native Windows download acceptance through normal signing/reputation and
+  antivirus vendor review before claiming production-ready native distribution.
 
 After local authorization, run the explicit opt-in acceptance harness:
 

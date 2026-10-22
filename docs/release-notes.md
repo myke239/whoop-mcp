@@ -14,3 +14,9 @@ Read [installation](https://github.com/myke239/whoop-mcp/blob/main/docs/installa
 Live WHOOP authorization, ChatGPT connection and phone availability require owner-account acceptance.
 WHOOP's public member API does not expose workout creation, scheduling or journal edits.
 Independent project; not affiliated with WHOOP or OpenAI.
+
+**Windows download limitation:** the downloaded unsigned executable was terminated by
+Avast's sandbox on the owner's machine and returned Access is denied. Windows CI and
+the locally built executable passed, but the downloaded-binary check did not. Use the
+tested managed Python installer for account testing. No security protection was disabled.
+This release remains a prerelease pending live account acceptance and native download trust.
