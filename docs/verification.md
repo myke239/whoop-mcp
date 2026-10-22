@@ -22,16 +22,32 @@ Evidence is recorded as checks run, not inferred from implemented features.
 - Cross-platform CI run [39851885641](https://github.com/myke239/whoop-mcp/actions/runs/39851885641)
   passed all six OS/Python combinations and dependency audit at commit 097a690:
   Windows/macOS/Linux × Python 3.12/3.13, 56 tests per job, wheel builds and clean
-  managed installer/installed MCP/plugin checks. Final EOF and prefix-safety changes
-  trigger a fresh run before merge.
+  managed installer/installed MCP/plugin checks.
+- Final implementation run [39852206192](https://github.com/myke239/whoop-mcp/actions/runs/39852206192)
+  passed all seven jobs with 57 tests per OS/Python job, including EOF shutdown and
+  prefix-safety changes. PR #1 was merged only after these checks passed.
+- Native release run [39852562577](https://github.com/myke239/whoop-mcp/actions/runs/39852562577)
+  built and verified Windows, macOS 14 and Ubuntu 22.04 bundles: version, real MCP
+  initialize/list/call, graceful EOF, bundled plugin copy, archives and SHA-256 manifests.
+- Native Windows doctor also exercised the actual Windows OS keyring using an empty
+  synthetic private directory. macOS/Linux live keyring sessions remain owner-environment checks.
 
 ## Required before live acceptance
 
-- Run target-OS native bundle builds and record their results.
 - Owner creates/configures WHOOP OAuth app locally and completes browser consent.
 - Run verify and exercise representative cycle/recovery/sleep/workout reads with owner's consent.
 - Verify privacy projection, units, score states and pagination against real responses.
 - Connect the public HTTPS MCP endpoint to the owner's ChatGPT account, then check phone access.
-- Record target-OS installer/bundle results and distinguish unsigned from signed distribution.
+- All current native archives are unsigned; no publisher verification or notarization is claimed.
+
+After local authorization, run the explicit opt-in acceptance harness:
+
+```powershell
+& .venv/Scripts/python.exe scripts/verify_live.py --live --timezone America/Los_Angeles
+```
+
+It starts an actual stdio MCP client and exercises representative reads, pagination,
+detail lookups, summaries and a local-date view. It prints statuses and sample counts;
+it does not persist health records. This script is never part of default tests or CI.
 
 Do not commit live WHOOP responses or token-bearing callback URLs as evidence.
