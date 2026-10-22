@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 - 2026-10-22
 
 - Verify login through the profile endpoint so missing optional body measurements do
   not fail an otherwise valid connection. Live checks disclose unavailable data.

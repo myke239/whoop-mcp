@@ -6,6 +6,7 @@ from uuid import UUID
 
 import httpx
 
+from . import __version__
 from .auth import Auth, WhoopError
 from .tls import context
 
@@ -62,7 +63,7 @@ class WhoopClient:
             verify=context(),
             timeout=httpx.Timeout(30, connect=10),
             follow_redirects=False,
-            headers={"User-Agent": "whoop-mcp-das-kreb/0.1.0"},
+            headers={"User-Agent": "whoop-mcp-das-kreb/" + __version__},
         )
 
     def _get(self, path, params=None, identity=False):

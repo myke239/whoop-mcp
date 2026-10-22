@@ -2,6 +2,7 @@ import json
 import sys
 from pathlib import Path
 
+from whoop_mcp import __version__
 from whoop_mcp.plugin import install
 from whoop_mcp.remote import approval_command
 
@@ -11,7 +12,7 @@ def test_plugin_absolute_command_and_guided_skills(tmp_path):
     root = tmp_path / "plugin"
     manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
     assert manifest["author"]["name"] == "Das Kreb"
-    assert manifest["version"] == "0.1.0"
+    assert manifest["version"] == __version__
     server = json.loads((root / ".mcp.json").read_text())["mcpServers"]["whoop"]
     assert Path(server["command"]).is_absolute()
     assert server["args"] == ["-m", "whoop_mcp.cli", "serve"]
