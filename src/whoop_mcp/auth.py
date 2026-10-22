@@ -95,9 +95,19 @@ class Auth:
                 (parts.scheme, parts.netloc, parts.path)
                 != (expected.scheme, expected.netloc, expected.path)
                 or parts.fragment
-                or set(query) != {"code", "state"}
+                or not {"code", "state"} <= set(query)
+                or not set(query) <= {"code", "state", "scope"}
                 or any(len(v) != 1 for v in query.values())
                 or not query.get("code", [""])[0]
+                # WHOOP includes the granted scope in successful redirects. It is
+                # informational here; only the token exchange establishes access.
+                or (
+                    "scope" in query
+                    and (
+                        not query["scope"][0].split()
+                        or not set(query["scope"][0].split()) <= set(SCOPES)
+                    )
+                )
                 or login.get("expires_at", 0) < time.time()
                 or not secrets.compare_digest(query.get("state", [""])[0], login.get("state", "!"))
             ):
