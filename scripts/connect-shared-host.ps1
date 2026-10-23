@@ -6,6 +6,15 @@ param(
     [string]$MfpRoot = 'D:\developer\myfitnesspal-mcp'
 )
 $ErrorActionPreference = 'Stop'
+function Stop-VerifiedProcessTree($expected) {
+    $current = Get-CimInstance Win32_Process -Filter "ProcessId=$($expected.ProcessId)"
+    if (-not $current) { return }
+    if ($current.CreationDate -ne $expected.CreationDate -or $current.CommandLine -ne $expected.CommandLine) {
+        throw 'Process ownership changed during startup; refusing to stop it.'
+    }
+    & taskkill /PID $current.ProcessId /T /F | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Could not stop the verified process tree.' }
+}
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $whoopPython = Join-Path $projectRoot '.venv/Scripts/python.exe'
 $mfpPython = Join-Path $MfpRoot '.venv/Scripts/python.exe'
@@ -25,6 +34,9 @@ if ($listener) {
     }
     if (-not $GarminPython -and $existingGateway.CommandLine -match '--garmin-python\s+("[^"]+"|\S+)') {
         $GarminPython = $Matches[1].Trim('"')
+    }
+    if (-not $PSBoundParameters.ContainsKey('GarminData') -and $existingGateway.CommandLine -match '--garmin-data\s+("[^"]+"|\S+)') {
+        $GarminData = $Matches[1].Trim('"')
     }
     if (-not $RestartExisting) { throw 'Existing gateway is active. Use -RestartExisting for a brief controlled restart.' }
 }
@@ -64,12 +76,10 @@ try {
     # Verify the new backend before interrupting the existing public connection.
     if ($existingGateway) {
         Write-Host 'Restarting the verified shared gateway. Existing OAuth grants are preserved.'
-        & taskkill /PID $existingGateway.ProcessId /T /F | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw 'Could not stop the existing gateway.' }
+        Stop-VerifiedProcessTree $existingGateway
     }
     if ($existingGarmin -and (Get-Process -Id $existingGarmin.ProcessId -ErrorAction SilentlyContinue)) {
-        & taskkill /PID $existingGarmin.ProcessId /T /F | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw 'Could not stop the verified Garmin backend.' }
+        Stop-VerifiedProcessTree $existingGarmin
     }
     Write-Host "WHOOP connection URL: $origin/mcp/whoop/"
     Write-Host 'Keep this terminal open. Ctrl+C stops the shared gateway and WHOOP backend.'
