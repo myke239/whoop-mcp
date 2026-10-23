@@ -4,6 +4,29 @@ The server supports authenticated Streamable HTTP at `/mcp`. This is a self-host
 single-owner connection. It is not a hosted public service or an approved marketplace
 listing. Your machine and HTTPS forwarding service must remain running.
 
+## Share a Garmin / MyFitnessPal hostname
+
+Use the existing gateway and a separate WHOOP backend on loopback port 8789. Do not
+start another tunnel or bind WHOOP to the gateway's occupied port 8788.
+
+```sh
+whoop-mcp remote serve --shared-host --public-url https://YOUR-HOST --port 8789
+```
+
+WHOOP's connection URL is `https://YOUR-HOST/mcp/whoop/` (including the trailing slash).
+Its issuer is `https://YOUR-HOST/mcp/whoop`, and its grant store is separate from
+standalone `/mcp`, Garmin and MyFitnessPal. Use `--shared-host` with `remote approve`
+and `remote reset` for this connection; consent pages include the correct command.
+
+The companion MyFitnessPal gateway accepts `--whoop-port 8789`. It forwards the exact
+`/mcp/whoop` namespace plus `/.well-known/oauth-authorization-server/mcp/whoop` and
+`/.well-known/oauth-protected-resource/mcp/whoop/` to that backend, preserving public
+Host headers, queries and streamed responses. WHOOP retains its own OAuth validation.
+Starting/stopping the WHOOP backend is independent of the gateway's Garmin child.
+Keep existing Garmin/MyFitnessPal grants; no OAuth reset is required for those apps.
+
+## Standalone setup
+
 1. Complete local `setup`, `login` and `verify`.
 2. Forward a stable public HTTPS origin to `http://127.0.0.1:8788` using a trusted reverse
    proxy or tunnel provider. The forwarding service can see health-data responses.

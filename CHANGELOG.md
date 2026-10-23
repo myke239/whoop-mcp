@@ -2,6 +2,9 @@
 
 ## 0.1.1 - 2026-10-22
 
+- Add isolated shared-host OAuth and MCP routes at `/mcp/whoop/`, with a separate
+  grant store and explicit `--shared-host` commands.
+
 - Verify login through the profile endpoint so missing optional body measurements do
   not fail an otherwise valid connection. Live checks disclose unavailable data.
 - Suppress routine HTTP request logs that can contain private record identifiers.

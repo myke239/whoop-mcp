@@ -24,11 +24,13 @@ from mcp.server.transport_security import TransportSecuritySettings
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import AnyHttpUrl
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
+from starlette.routing import Route, compile_path
 
 from .server import create_server
 from .storage import Store, data_directory
 
 READ_SCOPE = "whoop:read"
+SHARED_PREFIX = "/mcp/whoop"
 
 
 def public_origin(value):
@@ -72,10 +74,12 @@ def key(token):
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def approval_command(ticket):
+def approval_command(ticket, shared_host=False):
     args = [sys.executable, "-m", "whoop_mcp.cli", "remote", "approve", ticket]
     if getattr(sys, "frozen", False):
         args = [sys.executable, "remote", "approve", ticket]
+    if shared_host:
+        args.append("--shared-host")
     if sys.platform == "win32":
         return "& " + " ".join("'" + a.replace("'", "''") + "'" for a in args)
     return shlex.join(args)
@@ -86,10 +90,15 @@ class OwnerRefresh(RefreshToken):
 
 
 class OwnerProvider:
-    def __init__(self, origin, store=None):
+    def __init__(self, origin, store=None, shared_host=False):
         self.origin = public_origin(origin)
-        self.resource = self.origin + "/mcp"
-        self.store = store or Store(data_directory() / "remote")
+        self.prefix = SHARED_PREFIX if shared_host else ""
+        self.mcp_path = SHARED_PREFIX + "/" if shared_host else "/mcp"
+        self.issuer = self.origin + self.prefix
+        self.resource = self.origin + self.mcp_path
+        self.store = store or Store(
+            data_directory() / ("remote-shared" if shared_host else "remote")
+        )
 
     @contextmanager
     def state(self):
@@ -107,6 +116,8 @@ class OwnerProvider:
             )
             if state["origin"] != self.origin:
                 raise ValueError("Origin changed; reset remote connections before reconnecting")
+            if state.setdefault("resource", self.resource) != self.resource:
+                raise ValueError("Remote state belongs to a different OAuth resource")
             for collection in ("pending", "codes", "access", "refresh"):
                 state[collection] = {
                     k: v for k, v in state[collection].items() if v["expires_at"] > time.time()
@@ -155,7 +166,7 @@ class OwnerProvider:
                 "approved": False,
                 "expires_at": time.time() + 300,
             }
-        return self.origin + "/consent?ticket=" + ticket
+        return self.issuer + "/consent?ticket=" + ticket
 
     def consent(self, ticket):
         with self.state() as state:
@@ -165,8 +176,10 @@ class OwnerProvider:
             if not pending["approved"]:
                 return HTMLResponse(
                     "<h1>WHOOP · Das Kreb</h1><p>Approve access to your WHOOP data in the local terminal.</p><p>Only approve a connection you just started. Paste this command on the computer running the server, review the callback, and type APPROVE.</p><pre>"
-                    + html.escape(approval_command(ticket))
-                    + '</pre><form action="/consent"><input type="hidden" name="ticket" value="'
+                    + html.escape(approval_command(ticket, bool(self.prefix)))
+                    + '</pre><form action="'
+                    + self.prefix
+                    + '/consent"><input type="hidden" name="ticket" value="'
                     + html.escape(ticket, quote=True)
                     + '"><button>Continue</button></form>'
                 )
@@ -304,8 +317,9 @@ class OwnerProvider:
 
 
 class Boundary:
-    def __init__(self, app, origin, port):
+    def __init__(self, app, origin, port, prefix="", mcp_path="/mcp"):
         self.app, self.origin = app, origin
+        self.prefix, self.mcp_path = prefix, mcp_path
         self.hosts = {urlsplit(origin).netloc, f"127.0.0.1:{port}", f"localhost:{port}"}
         self.window, self.count = time.monotonic(), 0
 
@@ -333,19 +347,19 @@ class Boundary:
             if message["type"] == "http.disconnect":
                 return
             body.extend(message.get("body", b""))
-            if len(body) > (1024 * 1024 if scope["path"] == "/mcp" else 16384):
+            if len(body) > (1024 * 1024 if scope["path"] == self.mcp_path else 16384):
                 return await JSONResponse({"error": "Request too large"}, status_code=413)(
                     scope, receive, send
                 )
             if not message.get("more_body", False):
                 break
-        if scope["path"] in ("/token", "/revoke"):
+        if scope["path"] in (self.prefix + "/token", self.prefix + "/revoke"):
             form = parse_qs(body.decode("utf-8", errors="replace"), keep_blank_values=True)
-            if "resource" in form and form["resource"] != [self.origin + "/mcp"]:
+            if "resource" in form and form["resource"] != [self.origin + self.mcp_path]:
                 return await JSONResponse({"error": "invalid_target"}, status_code=400)(
                     scope, receive, send
                 )
-            if scope["path"] == "/revoke" and "client_secret" not in form:
+            if scope["path"] == self.prefix + "/revoke" and "client_secret" not in form:
                 body.extend(b"&client_secret=")
         delivered = False
 
@@ -372,10 +386,10 @@ class Boundary:
         await self.app(scope, replay, secure_send)
 
 
-def create_http_app(origin, port=8788, store=None, client=None):
-    provider = OwnerProvider(origin, store)
+def create_http_app(origin, port=8788, store=None, client=None, shared_host=False):
+    provider = OwnerProvider(origin, store, shared_host)
     auth = AuthSettings(
-        issuer_url=AnyHttpUrl(provider.origin),
+        issuer_url=AnyHttpUrl(provider.issuer),
         resource_server_url=AnyHttpUrl(provider.resource),
         validate_token_resource=True,
         required_scopes=[READ_SCOPE],
@@ -392,25 +406,43 @@ def create_http_app(origin, port=8788, store=None, client=None):
         auth_server_provider=provider,
         json_response=True,
         stateless_http=True,
+        streamable_http_path=provider.mcp_path,
         transport_security=TransportSecuritySettings(
             allowed_hosts=[urlsplit(origin).netloc, f"127.0.0.1:{port}", f"localhost:{port}"],
             allowed_origins=[origin],
         ),
     )
 
-    @server.custom_route("/consent", methods=["GET"])
+    @server.custom_route(provider.prefix + "/consent", methods=["GET"])
     async def consent(request):
         return provider.consent(request.query_params.get("ticket", ""))
 
-    @server.custom_route("/health", methods=["GET"])
+    @server.custom_route(provider.prefix + "/health", methods=["GET"])
     async def health(request):
         return JSONResponse({"status": "ready", "authentication": "oauth", "read_only": True})
 
-    return Boundary(server.streamable_http_app(), provider.origin, port), provider
+    app = server.streamable_http_app()
+    if shared_host:
+        for route in app.routes:
+            path = getattr(route, "path", "")
+            if path in {"/authorize", "/token", "/register", "/revoke"}:
+                route.path = provider.prefix + path
+            elif path == "/.well-known/oauth-authorization-server":
+                route.path = path + provider.prefix
+            else:
+                continue
+            route.path_regex, route.path_format, route.param_convertors = compile_path(route.path)
+
+        async def slash_redirect(request):
+            return RedirectResponse(provider.resource, status_code=307)
+
+        app.routes.append(Route(provider.prefix, slash_redirect, methods=["GET", "POST", "DELETE"]))
+    return Boundary(app, provider.origin, port, provider.prefix, provider.mcp_path), provider
 
 
 def run(args):
-    store = Store(data_directory() / "remote")
+    shared_host = getattr(args, "shared_host", False)
+    store = Store(data_directory() / ("remote-shared" if shared_host else "remote"))
     if args.action == "reset":
         if (
             not sys.stdin.isatty()
@@ -428,14 +460,14 @@ def run(args):
     if not origin:
         raise ValueError("Provide --public-url https://your-host")
     if args.action == "approve":
-        OwnerProvider(origin, store).approve(args.ticket)
+        OwnerProvider(origin, store, shared_host).approve(args.ticket)
         print("Approved. Return to ChatGPT and select Continue.")
     else:
         if not 1024 <= args.port <= 65535:
             raise ValueError("Use an unprivileged port")
         import uvicorn
 
-        app, _ = create_http_app(origin, args.port, store)
+        app, _ = create_http_app(origin, args.port, store, shared_host=shared_host)
         uvicorn.run(
             app,
             host="127.0.0.1",
