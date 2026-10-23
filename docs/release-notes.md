@@ -14,7 +14,8 @@ Read [installation](https://github.com/myke239/whoop-mcp/blob/main/docs/installa
 Version 0.1.1 fixes the OAuth callback scope rejection and handles missing optional
 body measurements during verification. Live WHOOP authorization and empty-account MCP
 reads passed. Populated-record acceptance, ChatGPT connection and phone availability
-still require separate verification. The offline suite contains 65 tests.
+still require separate verification. Shared-host OAuth is available at `/mcp/whoop/`;
+the offline suite contains 66 tests.
 WHOOP's public member API does not expose workout creation, scheduling or journal edits.
 Independent project; not affiliated with WHOOP or OpenAI.
 

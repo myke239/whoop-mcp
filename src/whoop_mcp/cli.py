@@ -74,6 +74,11 @@ def main():
     remote.add_argument("ticket", nargs="?")
     remote.add_argument("--public-url")
     remote.add_argument("--port", type=int, default=8788)
+    remote.add_argument(
+        "--shared-host",
+        action="store_true",
+        help="Use isolated /mcp/whoop/ OAuth routes and grants",
+    )
     tunnel = sub.add_parser("tunnel")
     tunnel.add_argument("action", choices=["setup", "run", "status"])
     tunnel.add_argument("--port", type=int, default=8788)
