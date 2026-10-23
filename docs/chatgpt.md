@@ -25,6 +25,14 @@ Host headers, queries and streamed responses. WHOOP retains its own OAuth valida
 Starting/stopping the WHOOP backend is independent of the gateway's Garmin child.
 Keep existing Garmin/MyFitnessPal grants; no OAuth reset is required for those apps.
 
+For the owner's existing Windows source-checkout setup, `scripts/connect-shared-host.ps1
+-RestartExisting` checks executable paths, public origin and loopback ownership, verifies
+the WHOOP backend, then briefly restarts the shared gateway. It reuses the same source
+directory and encrypted Garmin/MyFitnessPal state. Keep the terminal open; Ctrl+C stops
+the gateway and WHOOP backend. Supply `-GarminPython` if no existing gateway is running.
+This launcher does not configure startup or a Windows service. Its syntax has been
+checked; actual restart and ChatGPT acceptance still require the owner's local run.
+
 ## Standalone setup
 
 1. Complete local `setup`, `login` and `verify`.
