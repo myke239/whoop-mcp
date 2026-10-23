@@ -7,10 +7,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+from whoop_mcp import __version__
+
 root = Path(__file__).resolve().parents[1]
 out = root / "dist/release"
 out.mkdir(parents=True, exist_ok=True)
-name = f"whoop-mcp-0.1.0-{platform.system().lower()}-{platform.machine().lower()}"
+name = f"whoop-mcp-{__version__}-{platform.system().lower()}-{platform.machine().lower()}"
 archive = Path(shutil.make_archive(str(out / name), "zip", root / "dist", "whoop-mcp"))
 digest = hashlib.sha256(archive.read_bytes()).hexdigest()
 (out / (name + ".sha256")).write_text(f"{digest}  {archive.name}\n", encoding="utf-8")

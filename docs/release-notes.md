@@ -11,7 +11,10 @@ Read [installation](https://github.com/myke239/whoop-mcp/blob/main/docs/installa
 [remote setup](https://github.com/myke239/whoop-mcp/blob/main/docs/chatgpt.md) and
 [verification evidence](https://github.com/myke239/whoop-mcp/blob/main/docs/verification.md).
 
-Live WHOOP authorization, ChatGPT connection and phone availability require owner-account acceptance.
+Version 0.1.1 fixes the OAuth callback scope rejection and handles missing optional
+body measurements during verification. Live WHOOP authorization and empty-account MCP
+reads passed. Populated-record acceptance, ChatGPT connection and phone availability
+still require separate verification. The offline suite contains 65 tests.
 WHOOP's public member API does not expose workout creation, scheduling or journal edits.
 Independent project; not affiliated with WHOOP or OpenAI.
 
@@ -19,4 +22,4 @@ Independent project; not affiliated with WHOOP or OpenAI.
 Avast's sandbox on the owner's machine and returned Access is denied. Windows CI and
 the locally built executable passed, but the downloaded-binary check did not. Use the
 tested managed Python installer for account testing. No security protection was disabled.
-This release remains a prerelease pending live account acceptance and native download trust.
+This release remains a prerelease pending populated-data/ChatGPT acceptance and native download trust.

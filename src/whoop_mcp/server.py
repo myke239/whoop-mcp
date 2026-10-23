@@ -1,5 +1,6 @@
 """MCP tools for the full documented WHOOP member read surface."""
 
+import logging
 from functools import wraps
 
 from mcp.server.fastmcp import FastMCP
@@ -13,6 +14,10 @@ from .client import WhoopClient, window
 
 def create_server(client=None, **settings):
     client = client or WhoopClient()
+    settings.setdefault("log_level", "WARNING")
+    # HTTP INFO logs contain request paths, including private WHOOP record IDs.
+    for name in ("httpx", "httpcore"):
+        logging.getLogger(name).setLevel(logging.WARNING)
     server = FastMCP(
         "WHOOP · Das Kreb",
         instructions="Use get_whoop_guide first. Preserve units, score states, pagination and missingness. WHOOP tools are read-only.",

@@ -1,6 +1,6 @@
 {
   "name": "whoop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "WHOOP sleep, recovery and training evidence through the official API. By Das Kreb.",
   "author": {"name": "Das Kreb"},
   "repository": "https://github.com/myke239/whoop-mcp",

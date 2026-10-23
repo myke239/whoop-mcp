@@ -61,7 +61,8 @@ trusted HTTPS forwarding service and an awake server machine.
 Executables are unsigned unless a release explicitly states otherwise.
 
 Local offline tests cover real stdio MCP, HTTP OAuth and synthetic API responses.
-Live WHOOP authorization, ChatGPT acceptance and phone use have not yet been verified.
+Live WHOOP authorization and authenticated empty-account MCP reads have been verified.
+Populated-record acceptance, ChatGPT acceptance and phone use remain unverified.
 See [verification evidence](docs/verification.md) for the distinction between implementation,
 automated checks and account-level acceptance. Metrics support descriptive conversations,
 not medical diagnosis or clearance.

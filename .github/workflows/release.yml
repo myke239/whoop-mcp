@@ -43,4 +43,4 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release-assets/* --title "WHOOP MCP $GITHUB_REF_NAME · Das Kreb" --notes-file docs/release-notes.md
+        run: gh release create "$GITHUB_REF_NAME" release-assets/* --prerelease --title "WHOOP MCP $GITHUB_REF_NAME · Das Kreb" --notes-file docs/release-notes.md
